@@ -14,16 +14,10 @@ Created on Fri Jul 12 17:48:09 2019
 """
 
 
-import matplotlib.pyplot as plt
 import numpy as np
-import sympy as sp
-from mpl_toolkits import mplot3d
 from numpy import linalg as LA
-from scipy.optimize import differential_evolution
-from scipy.sparse import block_diag
 from sympy import *
-from sympy import Matrix, hessian, lambdify, ordered
-from sympy.tensor.array import derive_by_array
+from sympy import Matrix
 
 init_printing(use_unicode=True)
 from sympy import I
@@ -76,17 +70,6 @@ row_2 = [
 
 
 H = Matrix([row_1, row_2])
-# eval_up, eval_down = H.eigenvals()
-#
-# E_up = lambdify((kx, ky, M, delta_s), eval_up, modules='numpy')
-# E_down = lambdify((kx, ky, M, delta_s), eval_down, modules='numpy')
-#
-# Sigma = Matrix([ [1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, -1] ])
-#
-# H_eff = Sigma*(eta_s*sp.eye(4) - 1j*H)
-
-#%%
-# get_H_numeric = lambdify((kx_s, ky_s, m_s, phi_s, s_s), H, modules='numpy')
 
 
 def get_H_numeric(kx, ky, alpha, mu, N):

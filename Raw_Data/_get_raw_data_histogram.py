@@ -4,6 +4,7 @@ Created on Sun May  2 16:01:46 2021
 @author: marcin
 """
 
+# This file seems to be broken, as instead of loading raw data it reads the pre-selected training data
 
 import matplotlib.pyplot as plt
 import numpy as np

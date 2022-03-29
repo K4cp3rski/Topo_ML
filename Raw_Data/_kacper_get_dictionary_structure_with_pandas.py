@@ -15,9 +15,7 @@ from sklearn.model_selection import train_test_split
 
 
 # Changed train dataset size to 0.8, validation is 0.2 of this dataset
-def train_validate_test_split_data(
-    data_raw, train_percent=0.8, validate_percent=0.2
-):
+def train_validate_test_split_data(data_raw, train_percent=0.8, validate_percent=0.2):
     train, test = train_test_split(data_raw, train_size=train_percent)
     train, validate = train_test_split(train, test_size=validate_percent)
     return train, validate, test
@@ -145,7 +143,6 @@ for i in range(0, data_raw.shape[0]):
     }
     data_dictionary.append(dictionary)
 dataFrame = pd.DataFrame(data_dictionary)
-
 
 
 # dataFrame_train = dataFrame.sample(frac = 0.6)

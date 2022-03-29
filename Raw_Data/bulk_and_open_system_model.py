@@ -353,4 +353,3 @@ if __name__ == "__main__":
     #     File run procedure
     get_plots_3d(Nx, Ny, hopping_range, parameters, X, Y)
     get_plots_geometries(Nx, Ny, hopping_range, N, flat_band_on_off, mu, alfa, line_len)
-
