@@ -129,3 +129,9 @@ Raw_Data/results_keras/
 .dat
 .pkl
 .arg
+
+*.dat
+
+*.pkl
+
+*.data_raw
