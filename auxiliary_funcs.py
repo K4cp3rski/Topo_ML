@@ -78,7 +78,7 @@ def roc_auc(model, X, Y, title=None):
     roc_auc["macro"] = auc(fpr["macro"], tpr["macro"])
 
     # Plot all ROC curves
-    fig = plt.figure(figsize=(15, 9))
+    fig = plt.figure(figsize=(10, 5))
     plt.plot(
         fpr["micro"],
         tpr["micro"],
@@ -189,4 +189,3 @@ def plotTrainingHistory(model):
     axes[1].legend(["train", "validation"], loc="lower right")
 
     fig.show()
-
