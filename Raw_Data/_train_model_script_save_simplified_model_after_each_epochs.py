@@ -174,9 +174,9 @@ for preselection in np.array([1, 0]):
                     )
                     checkpoint = keras.callbacks.ModelCheckpoint(
                         filepath,
-                        monitor="val_acc",
+                        monitor="val_accuracy",
                         verbose=1,
-                        save_best_only=False,
+                        save_best_only=True,
                         mode="max",
                     )
                     history = model.fit(
@@ -244,7 +244,7 @@ for preselection in np.array([1, 0]):
                     )
                     checkpoint = keras.callbacks.ModelCheckpoint(
                         filepath,
-                        monitor="val_acc",
+                        monitor="val_accuracy",
                         verbose=1,
                         save_best_only=False,
                         mode="max",
@@ -326,7 +326,7 @@ for preselection in np.array([1, 0]):
                     )
                     checkpoint = keras.callbacks.ModelCheckpoint(
                         filepath,
-                        monitor="val_acc",
+                        monitor="val_accuracy",
                         verbose=1,
                         save_best_only=False,
                         mode="max",
