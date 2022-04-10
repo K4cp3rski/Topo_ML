@@ -106,7 +106,9 @@ def roc_auc(model, X, Y, title=None, labels=None):
             tpr[i],
             color=color,
             lw=lw,
-            label="ROC curve of class {0} (area = {1:0.2f})".format(labels[i], roc_auc[i]),
+            label="ROC curve of class {0} (area = {1:0.2f})".format(
+                labels[i], roc_auc[i]
+            ),
         )
 
     plt.plot([0, 1], [0, 1], "k--", lw=lw)
@@ -127,15 +129,31 @@ def roc_auc(model, X, Y, title=None, labels=None):
 
         # Prepares an auxiliar dataframe to help with the plots
         df_aux = pd.DataFrame(X.numpy().reshape(-1, 576))
-        df_aux['class'] = tf.argmax(y_test, axis=1)
-        df_aux['prob'] = y_score[:, i]
-        df_aux = df_aux.reset_index(drop = True)
+        df_aux["class"] = tf.argmax(y_test, axis=1)
+        df_aux["prob"] = y_score[:, i]
+        df_aux = df_aux.reset_index(drop=True)
 
         # Plots the probability distribution for the class and the rest
-        ax = plt.subplot(2, 2, i+1)
-        sns.histplot(x = "prob", data = df_aux, hue = 'class', ax = ax, stat="count", discrete=True, palette="viridis", legend=True)
+        ax = plt.subplot(2, 2, i + 1)
+        sns.histplot(
+            x="prob",
+            data=df_aux,
+            hue="class",
+            ax=ax,
+            stat="count",
+            discrete=True,
+            palette="viridis",
+            legend=True,
+        )
         ax.set_title(labels[c])
-        ax.legend([f"Class: {labels[3]}", f"Class: {labels[2]}", f"Class: {labels[1]}", f"Class: {labels[0]}"])
+        ax.legend(
+            [
+                f"Class: {labels[3]}",
+                f"Class: {labels[2]}",
+                f"Class: {labels[1]}",
+                f"Class: {labels[0]}",
+            ]
+        )
         ax.set_xlabel(f"P({labels[c]})")
     fig_hist.subplots_adjust(hspace=0.5)
 
@@ -153,16 +171,16 @@ def plotHistScores(
         tick_labels = ["Cat.0", "Cat.1", "Cat.2", "Cat.3"]
     data = getScores(model, test_set, test_labels)
     proc_0 = data[0].to_numpy()[0] / data[0].to_numpy().sum() * 100
-    print(proc_0)
+    # print(proc_0)
 
     proc_1 = data[1].to_numpy()[1] / data[1].to_numpy().sum() * 100
-    print(proc_1)
+    # print(proc_1)
 
     proc_2 = data[2].to_numpy()[2] / data[2].to_numpy().sum() * 100
-    print(proc_2)
+    # print(proc_2)
 
     proc_3 = data[3].to_numpy()[3] / data[3].to_numpy().sum() * 100
-    print(proc_3)
+    # print(proc_3)
 
     fig, ax = plt.subplots()
 
@@ -241,9 +259,10 @@ def printScores(model, X, Y):
 
     y_pred = np.argmax(y_pred, axis=1)
     y_true = np.argmax(y_true, axis=1)
-
+    cm = confusion_matrix(y_true, y_pred)
     print(classification_report(y_true, y_pred))
-    print(confusion_matrix(y_true, y_pred))
+    # print(cm)
+    return cm
 
 
 def plot_confusion_matrix(cm, class_names):
