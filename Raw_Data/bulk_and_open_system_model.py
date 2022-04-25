@@ -277,6 +277,9 @@ def get_plots_geometries(
     ax[1].set_title("Half-opened \n geometry")
     ax[2].set_title("Fully-opened \n geometry")
 
+    for axs in ax.flat:
+        axs.grid(visible=False)
+
     fig.subplots_adjust(wspace=0.4)
     plt.show()
 
@@ -314,7 +317,7 @@ def get_plots_3d(Nx, Ny, hopping_range, parameters, X, Y):
 
     ax_left = fig.add_subplot(111, projection="3d")
     surf = ax_left.plot_surface(
-        X, Y, rho_left.T, cmap=cm.coolwarm, linewidth=2, antialiased=False
+        X, Y, rho_left.T, cmap=cm.coolwarm, linewidth=0, antialiased=False
     )
     ax_left.set_xlabel("x")
     ax_left.set_ylabel("y")

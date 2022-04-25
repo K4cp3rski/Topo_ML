@@ -36,6 +36,41 @@ def get_figure_repr_1(X_train):
 
     for ax in axs.flat:
         ax.set(frame_on=False, xticks=np.arange(0, 24, 5), yticks=np.arange(0, 24, 5))
+        ax.grid(visible=False)
+
+    for ax in axs.flat:
+        ax.label_outer()
+
+
+def get_figure_repr_1_comparison_disorder(X_cleaned, X_disroder, num=10):
+    fig, axs = plt.subplots(2, 4, sharey="row", figsize=(8, 4))
+    plt.tight_layout()
+    plt.style.use("seaborn-notebook")
+
+    cmap = "viridis"
+
+    for row in range(2):
+        for idx in range(4):
+            if row == 0:
+                cm_pic = X_cleaned.loc[X_cleaned["Chern_bulk"] == idx].to_numpy()[num][0].reshape(24, 24)
+                # cm_pic = X_cleaned[cm_loc]
+                pcm = axs[row, idx].imshow(cm_pic, cmap=cmap)
+                axs[row, idx].set_title(f"$|C| = {idx}$")
+            else:
+                cm_pic = X_disroder.loc[X_disroder["Chern_bulk"] == idx].to_numpy()[num][0].reshape(24, 24)
+                # cm_pic = X_disroder[cm_loc].numpy().reshape(24, 24)
+                pcm = axs[row, idx].imshow(cm_pic, cmap=cmap)
+                axs[row, idx].set_title(f"$|C| = {idx}$")
+
+    fig.text(0.5, 0.25, "X pixels", ha="center")
+    fig.text(0.005, 0.6, "Y pixels", va="center", rotation="vertical")
+    fig.text(0.04, 0.85, "$V = 0$", va="center", rotation="vertical")
+    fig.text(0.04, 0.45, "$V > 1$", va="center", rotation="vertical")
+    fig.colorbar(pcm, ax=[axs], location="bottom", label="LDOS Colormap")
+
+    for ax in axs.flat:
+        ax.set(frame_on=False, xticks=np.arange(0, 24, 5), yticks=np.arange(0, 24, 5))
+        ax.grid(visible=False)
 
     for ax in axs.flat:
         ax.label_outer()
@@ -265,35 +300,45 @@ def printScores(model, X, Y):
     return cm
 
 
-def plot_confusion_matrix(cm, class_names):
+def plot_confusion_matrix(cm, class_names, title=None, cmap="coolwarm", percent=True, supress_labels=False):
     """
     Returns a matplotlib figure containing the plotted confusion matrix.
 
     Args:
        cm (array, shape = [n, n]): a confusion matrix of integer classes
        class_names (array, shape = [n]): String names of the integer classes
+       percent: Should the function plot percentile of class memebers on each tile
+       cmap: Colormap to use
+       title: Title of the plot
+       supress_labels: Should superimposed labels be dropped
     """
+    if title is None and not supress_labels:
+        title = "Confusion matrix"
     figure = plt.figure(figsize=(8, 8))
-    plt.imshow(cm, interpolation="nearest", cmap=plt.cm.Blues)
-    plt.title("Confusion matrix")
-    plt.colorbar()
+    im = plt.imshow(cm, interpolation="nearest", cmap=cmap)
+    plt.title(title)
+    plt.grid(visible=False)
+    if not supress_labels:
+        plt.colorbar(im, fraction=0.046, pad=0.04)
     tick_marks = np.arange(len(class_names))
     plt.xticks(tick_marks, class_names, rotation=45)
     plt.yticks(tick_marks, class_names)
 
     # Normalize the confusion matrix.
-    cm = np.around(cm.astype("float") / cm.sum(axis=1)[:, np.newaxis], decimals=2)
+    cm = cm.astype("float") / cm.sum(axis=1)[:, np.newaxis]
 
     # Use white text if squares are dark; otherwise black.
     threshold = cm.max() / 2.0
 
-    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        color = "white" if cm[i, j] > threshold else "black"
-        plt.text(j, i, cm[i, j], horizontalalignment="center", color=color)
+    if not supress_labels:
+        for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+            color = "white" if cm[i, j] > threshold else "black"
+            plt.text(j, i, "{:.2f}\%".format(cm[i, j]*100), horizontalalignment="center", color=color)
 
     plt.tight_layout()
     plt.ylabel("True label")
     plt.xlabel("Predicted label")
+    plt.close("all")
     return figure
 
 
