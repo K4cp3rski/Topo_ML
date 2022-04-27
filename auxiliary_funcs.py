@@ -1,11 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.metrics import roc_curve, auc, classification_report, confusion_matrix
+from sklearn.metrics import roc_curve, auc, classification_report, confusion_matrix, accuracy_score
 from itertools import cycle
 import pandas as pd
 import itertools
 import seaborn as sns
 import tensorflow as tf
+from matplotlib import ticker
 
 
 def get_figure_repr_1(X_train):
@@ -288,16 +289,29 @@ def getScores(model, X, Y):
     return pd.DataFrame(matrix)
 
 
-def printScores(model, X, Y):
+def printScores(model, X, Y, get_acc=False, supress=False):
+    """
+    :param model: Model you want to test
+    :param X: Data
+    :param Y: Values
+    :param get_acc: Should the function return accuracy score
+    :param supress: Supresses stdout
+    :return: Default: Confusion Matrix, if get_acc == True: tuple(Confusion Matrix, Accuracy)
+    """
     y_pred = model.predict(X)
     y_true = Y
 
     y_pred = np.argmax(y_pred, axis=1)
     y_true = np.argmax(y_true, axis=1)
     cm = confusion_matrix(y_true, y_pred)
-    print(classification_report(y_true, y_pred))
-    # print(cm)
-    return cm
+    cr = classification_report(y_true, y_pred)
+    acc = accuracy_score(y_true, y_pred)
+    if not supress:
+        print(cr)
+    if not get_acc:
+        return cm
+    else:
+        return cm, acc
 
 
 def plot_confusion_matrix(cm, class_names, title=None, cmap="coolwarm", percent=True, supress_labels=False):
@@ -333,7 +347,7 @@ def plot_confusion_matrix(cm, class_names, title=None, cmap="coolwarm", percent=
     if not supress_labels:
         for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
             color = "white" if cm[i, j] > threshold else "black"
-            plt.text(j, i, "{:.2f}\%".format(cm[i, j]*100), horizontalalignment="center", color=color)
+            plt.text(j, i, "{:.2f}%".format(cm[i, j]*100), horizontalalignment="center", color=color)
 
     plt.tight_layout()
     plt.ylabel("True label")
@@ -363,7 +377,7 @@ def plotTrainingHistory(model):
     # fig.show()
 
 
-def plotTrainingHistory_avg(model_tab, alpha=0.5):
+def plotTrainingHistory_avg(model_tab, alpha=0.5, figshape=(10, 5), plot_loss=True, title=None):
     avg_accuracy = []
     avg_loss = []
     avg_val_accuracy = []
@@ -394,50 +408,142 @@ def plotTrainingHistory_avg(model_tab, alpha=0.5):
 
     epochs_num = len(avg_accuracy)
     epoch_range = np.linspace(1, epochs_num, num=epochs_num)
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-    axes[0].plot(epoch_range, avg_loss, color="cyan", label="train")
-    axes[0].fill_between(
-        epoch_range,
-        np.add(avg_loss, avg_loss_std),
-        np.subtract(avg_loss, avg_loss_std),
-        color="cyan",
-        alpha=alpha,
-        label="train \nconfidence interval",
-    )
-    axes[0].plot(epoch_range, avg_val_loss, color="orange", label="validation")
-    axes[0].fill_between(
-        epoch_range,
-        np.add(avg_val_loss, avg_val_loss_std),
-        np.subtract(avg_val_loss, avg_val_loss_std),
-        color="orange",
-        alpha=alpha,
-        label="validation \nconfidence interval",
-    )
-    axes[0].set_ylabel("Loss function value")
-    axes[0].set_xlabel("Epoch")
-    axes[0].legend(loc="upper right")
 
-    axes[1].plot(epoch_range, avg_accuracy, color="cyan", label="train")
-    axes[1].fill_between(
-        epoch_range,
-        np.add(avg_accuracy, avg_accuracy_std),
-        np.subtract(avg_accuracy, avg_accuracy_std),
-        color="cyan",
-        alpha=alpha,
-        label="train \nconfidence interval",
-    )
-    axes[1].plot(epoch_range, avg_val_accuracy, color="orange", label="validation")
-    axes[1].fill_between(
-        epoch_range,
-        np.add(avg_val_accuracy, avg_val_accuracy_std),
-        np.subtract(avg_val_accuracy, avg_val_accuracy_std),
-        color="orange",
-        alpha=alpha,
-        label="validation\nconfidence interval",
-    )
-    axes[1].set_ylabel("Accuracy score")
-    axes[1].set_xlabel("Epoch")
-    axes[1].legend(loc="lower right")
+    if plot_loss:
+        fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+        axes[0].plot(epoch_range, avg_loss, color="cyan", label="train")
+        axes[0].fill_between(
+            epoch_range,
+            np.add(avg_loss, avg_loss_std),
+            np.subtract(avg_loss, avg_loss_std),
+            color="cyan",
+            alpha=alpha,
+            label="train \nconfidence interval",
+        )
+        axes[0].plot(epoch_range, avg_val_loss, color="orange", label="validation")
+        axes[0].fill_between(
+            epoch_range,
+            np.add(avg_val_loss, avg_val_loss_std),
+            np.subtract(avg_val_loss, avg_val_loss_std),
+            color="orange",
+            alpha=alpha,
+            label="validation \nconfidence interval",
+        )
+        axes[0].set_ylabel("Loss function value")
+        axes[0].set_xlabel("Epoch")
+        axes[0].legend(loc="upper right")
+
+        axes[1].plot(epoch_range, avg_accuracy, color="cyan", label="train")
+        axes[1].fill_between(
+            epoch_range,
+            np.add(avg_accuracy, avg_accuracy_std),
+            np.subtract(avg_accuracy, avg_accuracy_std),
+            color="cyan",
+            alpha=alpha,
+            label="train \nconfidence interval",
+        )
+        axes[1].plot(epoch_range, avg_val_accuracy, color="orange", label="validation")
+        axes[1].fill_between(
+            epoch_range,
+            np.add(avg_val_accuracy, avg_val_accuracy_std),
+            np.subtract(avg_val_accuracy, avg_val_accuracy_std),
+            color="orange",
+            alpha=alpha,
+            label="validation\nconfidence interval",
+        )
+        axes[1].set_ylabel("Accuracy score")
+        axes[1].set_xlabel("Epoch")
+        axes[1].legend(loc="lower right")
+    else:
+        fig, axes = plt.subplots(1, 1, figsize=figshape)
+        axes.plot(epoch_range, avg_accuracy, color="cyan", label="train")
+        axes.fill_between(
+            epoch_range,
+            np.add(avg_accuracy, avg_accuracy_std),
+            np.subtract(avg_accuracy, avg_accuracy_std),
+            color="cyan",
+            alpha=alpha,
+            label="train \nconfidence interval",
+        )
+        axes.plot(epoch_range, avg_val_accuracy, color="orange", label="validation")
+        axes.fill_between(
+            epoch_range,
+            np.add(avg_val_accuracy, avg_val_accuracy_std),
+            np.subtract(avg_val_accuracy, avg_val_accuracy_std),
+            color="orange",
+            alpha=alpha,
+            label="validation\nconfidence interval",
+        )
+        axes.set_ylabel("Accuracy score")
+        axes.set_xlabel("Epoch")
+        axes.legend(loc="lower right")
+        fig.suptitle(title)
+
+
+def plotTrainingHistory_avg_model_tab(model_tab_group, alpha=0.5, figshape=(10, 5), title_tab=None):
+    model_tab_data = []
+    if title_tab is None:
+        title_tab = []
+        for num in range(len(model_tab_group)):
+            title_tab.append("Model No.{}".format(num))
+    for model_tab in model_tab_group:
+        avg_accuracy = []
+        avg_val_accuracy = []
+
+        for model in model_tab:
+            history = model.history
+
+            avg_accuracy.append(np.asarray(history["accuracy"]))
+            avg_val_accuracy.append(np.asarray(history["val_accuracy"]))
+
+        avg_accuracy = np.asarray(avg_accuracy)
+        avg_val_accuracy = np.asarray(avg_val_accuracy)
+
+        avg_accuracy_std = avg_accuracy.std(axis=0)
+        avg_val_accuracy_std = avg_val_accuracy.std(axis=0)
+
+        avg_accuracy = avg_accuracy.mean(axis=0)
+        avg_val_accuracy = avg_val_accuracy.mean(axis=0)
+
+        epochs_num = len(avg_accuracy)
+        epoch_range = np.linspace(1, epochs_num, num=epochs_num)
+        model_tab_data.append([epoch_range, avg_accuracy, avg_accuracy_std, avg_val_accuracy, avg_val_accuracy_std])
+
+    fig, axes = plt.subplots(1, 3, figsize=figshape)
+    for num, data in enumerate(model_tab_data):
+        title = title_tab[num]
+        epoch_range, avg_accuracy, avg_accuracy_std, avg_val_accuracy, avg_val_accuracy_std = data
+        axes[num].plot(epoch_range, avg_accuracy, color="cyan", label="Training Dataset")
+        axes[num].fill_between(
+            epoch_range,
+            np.add(avg_accuracy, avg_accuracy_std),
+            np.subtract(avg_accuracy, avg_accuracy_std),
+            color="cyan",
+            alpha=alpha,
+            label="_train \nconfidence interval",
+        )
+        axes[num].plot(epoch_range, avg_val_accuracy, color="orange", label="Validation Dataset")
+        axes[num].fill_between(
+            epoch_range,
+            np.add(avg_val_accuracy, avg_val_accuracy_std),
+            np.subtract(avg_val_accuracy, avg_val_accuracy_std),
+            color="orange",
+            alpha=alpha,
+            label="_validation\nconfidence interval",
+        )
+        axes[num].set_ylabel("Accuracy score")
+        axes[num].set_xlabel("Epoch")
+        axes[num].set_ylim(0.9, 1.0)
+        axes[num].legend(loc="lower right")
+        axes[num].set_title(title)
+        axes[num].grid(False)
+        formatter = ticker.PercentFormatter(xmax=1.0)
+        axes[num].yaxis.set_major_formatter(formatter)
+        axes[num].yaxis.set_minor_formatter(ticker.NullFormatter())
+
+    for ax in axes.flat:
+        ax.label_outer()
+
 
     # Uncomment when not using in Jupyter Notebook
     # fig.show()
