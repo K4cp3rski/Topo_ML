@@ -480,7 +480,8 @@ def plotTrainingHistory_avg(model_tab, alpha=0.5, figshape=(10, 5), plot_loss=Tr
         fig.suptitle(title)
 
 
-def plotTrainingHistory_avg_model_tab(model_tab_group, alpha=0.5, figshape=(10, 5), title_tab=None):
+def plotTrainingHistory_avg_model_tab(model_tab_group, alpha=0.5, figshape=(10, 5), title_tab=None, save_title=None):
+    plt.close("All")
     model_tab_data = []
     if title_tab is None:
         title_tab = []
@@ -510,15 +511,16 @@ def plotTrainingHistory_avg_model_tab(model_tab_group, alpha=0.5, figshape=(10, 
         model_tab_data.append([epoch_range, avg_accuracy, avg_accuracy_std, avg_val_accuracy, avg_val_accuracy_std])
 
     fig, axes = plt.subplots(1, 3, figsize=figshape)
+    # plt.style.use("seaborn-notebook")
     for num, data in enumerate(model_tab_data):
         title = title_tab[num]
         epoch_range, avg_accuracy, avg_accuracy_std, avg_val_accuracy, avg_val_accuracy_std = data
-        axes[num].plot(epoch_range, avg_accuracy, color="cyan", label="Training Dataset")
+        axes[num].plot(epoch_range, avg_accuracy, color="cornflowerblue", label="Training Dataset")
         axes[num].fill_between(
             epoch_range,
             np.add(avg_accuracy, avg_accuracy_std),
             np.subtract(avg_accuracy, avg_accuracy_std),
-            color="cyan",
+            color="cornflowerblue",
             alpha=alpha,
             label="_train \nconfidence interval",
         )
@@ -533,16 +535,27 @@ def plotTrainingHistory_avg_model_tab(model_tab_group, alpha=0.5, figshape=(10, 
         )
         axes[num].set_ylabel("Accuracy score")
         axes[num].set_xlabel("Epoch")
-        axes[num].set_ylim(0.9, 1.0)
+        axes[num].set_ylim(0.92, 1.0)
         axes[num].legend(loc="lower right")
         axes[num].set_title(title)
-        axes[num].grid(False)
+        # axes[num].grid(False)
+        # axes[num].set_frame_on(False)
+        axes[num].axis("on")
         formatter = ticker.PercentFormatter(xmax=1.0)
+        axes[num].xaxis.set_major_locator(ticker.MultipleLocator(20))
+        axes[num].yaxis.set_major_locator(ticker.MultipleLocator(0.01))
+        axes[num].yaxis.set_minor_locator(ticker.MultipleLocator(0.005))
         axes[num].yaxis.set_major_formatter(formatter)
         axes[num].yaxis.set_minor_formatter(ticker.NullFormatter())
 
     for ax in axes.flat:
         ax.label_outer()
+
+    for spine in plt.gca().spines.values():
+        spine.set_visible(True)
+
+    if save_title is not None:
+        plt.savefig(save_title)
 
 
     # Uncomment when not using in Jupyter Notebook
